@@ -49,10 +49,10 @@ Clone directly into your global or project skills folder:
 
 ```bash
 # For Claude Code
-git clone https://github.com/YOUR_USERNAME/silent-council.git ~/.claude/skills/silent-council
+git clone https://github.com/jhonkervitchverdieu-art/silent-council.git ~/.claude/skills/silent-council
 
 # For OpenAI Codex / Universal Agents
-git clone https://github.com/YOUR_USERNAME/silent-council.git ~/.agents/skills/silent-council
+git clone https://github.com/jhonkervitchverdieu-art/silent-council.git ~/.agents/skills/silent-council
 ```
 
 ### Option B: Claude.ai (Web / Desktop) & ChatGPT Projects

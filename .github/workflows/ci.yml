@@ -1,0 +1,51 @@
+name: Validate Silent Council Skill
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate SKILL.md frontmatter
+        run: |
+          python3 -c '
+          with open("SKILL.md", "r", encoding="utf-8") as f:
+              content = f.read()
+          assert content.startswith("---\n"), "SKILL.md must start with YAML frontmatter"
+          assert "name: silent-council" in content, "Missing skill name in frontmatter"
+          assert "description:" in content, "Missing description in frontmatter"
+          print("SKILL.md frontmatter is valid.")
+          '
+
+      - name: Test Arbiter Scoring Engine
+        run: |
+          python3 -c '
+          import subprocess, json
+
+          out_go = subprocess.check_output(["python3", "scripts/arbiter_score.py", "8", "8", "8", "9", "8", "7"])
+          res_go = json.loads(out_go)
+          assert res_go["verdict"] == "🟢 GO", f"Expected GO, got {res_go}"
+
+          out_veto = subprocess.check_output(["python3", "scripts/arbiter_score.py", "9", "9", "2", "9", "9", "9"])
+          res_veto = json.loads(out_veto)
+          assert "security_risk" in res_veto["veto_triggers"], f"Expected security veto, got {res_veto}"
+          assert res_veto["verdict"] != "🟢 GO", "Veto must block GO status"
+
+          out_stop = subprocess.check_output(["python3", "scripts/arbiter_score.py", "3", "4", "3", "5", "4", "4"])
+          res_stop = json.loads(out_stop)
+          assert res_stop["verdict"] == "🔴 VETO / STOP", f"Expected STOP, got {res_stop}"
+
+          print("All Arbiter scoring tests passed!")
+          '
